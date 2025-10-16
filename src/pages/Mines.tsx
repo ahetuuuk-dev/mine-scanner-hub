@@ -105,10 +105,7 @@ const Mines = () => {
           </div>
           <div className="flex gap-2 flex-wrap">
             <GameRules />
-            {isAdmin && <Button variant="outline" onClick={() => navigate("/admin")} className="border-primary/30 bg-primary/5 hover:bg-primary/20 hover:border-primary">
-                <Users className="w-4 h-4 mr-2" />
-                Admin Panel
-              </Button>}
+            {isAdmin}
             <Button variant="outline" onClick={handleLogout} className="border-destructive/30 bg-destructive/5 hover:bg-destructive/20 hover:text-destructive hover:border-destructive">
               <LogOut className="w-4 h-4 mr-2" />
               Logout
