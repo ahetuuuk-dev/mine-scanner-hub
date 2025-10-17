@@ -38,6 +38,77 @@ export type Database = {
         }
         Relationships: []
       }
+      game_credentials: {
+        Row: {
+          created_at: string | null
+          created_by: string | null
+          expires_at: string | null
+          game_type: Database["public"]["Enums"]["game_type"]
+          id: string
+          is_active: boolean | null
+          secret_code: string
+          updated_at: string | null
+          user_id: string | null
+          username: string
+        }
+        Insert: {
+          created_at?: string | null
+          created_by?: string | null
+          expires_at?: string | null
+          game_type: Database["public"]["Enums"]["game_type"]
+          id?: string
+          is_active?: boolean | null
+          secret_code: string
+          updated_at?: string | null
+          user_id?: string | null
+          username: string
+        }
+        Update: {
+          created_at?: string | null
+          created_by?: string | null
+          expires_at?: string | null
+          game_type?: Database["public"]["Enums"]["game_type"]
+          id?: string
+          is_active?: boolean | null
+          secret_code?: string
+          updated_at?: string | null
+          user_id?: string | null
+          username?: string
+        }
+        Relationships: []
+      }
+      game_sessions: {
+        Row: {
+          credential_id: string | null
+          game_type: Database["public"]["Enums"]["game_type"]
+          id: string
+          last_activity: string | null
+          started_at: string | null
+        }
+        Insert: {
+          credential_id?: string | null
+          game_type: Database["public"]["Enums"]["game_type"]
+          id?: string
+          last_activity?: string | null
+          started_at?: string | null
+        }
+        Update: {
+          credential_id?: string | null
+          game_type?: Database["public"]["Enums"]["game_type"]
+          id?: string
+          last_activity?: string | null
+          started_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "game_sessions_credential_id_fkey"
+            columns: ["credential_id"]
+            isOneToOne: false
+            referencedRelation: "game_credentials"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       user_credentials: {
         Row: {
           created_at: string | null
@@ -110,6 +181,7 @@ export type Database = {
     }
     Enums: {
       app_role: "admin" | "user"
+      game_type: "mines" | "aviator" | "color_prediction"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -238,6 +310,7 @@ export const Constants = {
   public: {
     Enums: {
       app_role: ["admin", "user"],
+      game_type: ["mines", "aviator", "color_prediction"],
     },
   },
 } as const

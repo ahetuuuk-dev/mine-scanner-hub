@@ -123,9 +123,12 @@ const Mines = () => {
             </div>
           </Card>
 
-          <Card className="p-6 bg-gradient-to-br from-card/40 to-card/20 border-2 border-border/30 relative overflow-hidden">
+          <Card 
+            className="p-6 bg-gradient-to-br from-card/40 to-card/20 border-2 border-border/30 relative overflow-hidden cursor-pointer hover:border-primary/30 transition-all"
+            onClick={() => navigate("/aviator")}
+          >
             <div className="absolute inset-0 bg-gradient-to-r from-transparent via-primary/5 to-transparent" />
-            <div className="relative text-center space-y-2 opacity-50">
+            <div className="relative text-center space-y-2 opacity-50 hover:opacity-70 transition-opacity">
               <div className="text-3xl">✈️</div>
               <h3 className="text-xl font-bold text-foreground">Aviator</h3>
               <div className="inline-block px-3 py-1 bg-primary/20 text-primary text-xs font-semibold rounded-full border border-primary/30">
@@ -134,9 +137,12 @@ const Mines = () => {
             </div>
           </Card>
 
-          <Card className="p-6 bg-gradient-to-br from-card/40 to-card/20 border-2 border-border/30 relative overflow-hidden">
+          <Card 
+            className="p-6 bg-gradient-to-br from-card/40 to-card/20 border-2 border-border/30 relative overflow-hidden cursor-pointer hover:border-accent/30 transition-all"
+            onClick={() => navigate("/color-prediction")}
+          >
             <div className="absolute inset-0 bg-gradient-to-r from-transparent via-accent/5 to-transparent" />
-            <div className="relative text-center space-y-2 opacity-50">
+            <div className="relative text-center space-y-2 opacity-50 hover:opacity-70 transition-opacity">
               <div className="text-3xl">🎨</div>
               <h3 className="text-xl font-bold text-foreground">Color Prediction</h3>
               <div className="inline-block px-3 py-1 bg-accent/20 text-accent text-xs font-semibold rounded-full border border-accent/30">

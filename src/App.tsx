@@ -7,6 +7,8 @@ import Index from "./pages/Index";
 import Auth from "./pages/Auth";
 import Admin from "./pages/Admin";
 import Mines from "./pages/Mines";
+import Aviator from "./pages/Aviator";
+import ColorPrediction from "./pages/ColorPrediction";
 import Users from "./pages/Users";
 import NotFound from "./pages/NotFound";
 
@@ -23,6 +25,8 @@ const App = () => (
           <Route path="/auth" element={<Auth />} />
           <Route path="/admin" element={<Admin />} />
           <Route path="/mines" element={<Mines />} />
+          <Route path="/aviator" element={<Aviator />} />
+          <Route path="/color-prediction" element={<ColorPrediction />} />
           <Route path="/users" element={<Users />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
