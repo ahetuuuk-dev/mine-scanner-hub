@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { MessageCircle } from "lucide-react";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
@@ -11,6 +12,7 @@ import { supabase } from "@/integrations/supabase/client";
 const Auth = () => {
   const [username, setUsername] = useState("");
   const [secretCode, setSecretCode] = useState("");
+  const [gameType, setGameType] = useState<"mines" | "aviator" | "color_prediction">("mines");
   const [loading, setLoading] = useState(false);
   const [adminContact, setAdminContact] = useState("");
   const navigate = useNavigate();
@@ -34,35 +36,8 @@ const Auth = () => {
       )
       .subscribe();
 
-    // Subscribe to user credential changes for real-time deactivation
-    const credentialsChannel = supabase
-      .channel('credentials-updates')
-      .on(
-        'postgres_changes',
-        {
-          event: '*',
-          schema: 'public',
-          table: 'user_credentials'
-        },
-        (payload: any) => {
-          if (payload.eventType === 'DELETE' || 
-              (payload.eventType === 'UPDATE' && !payload.new?.is_active)) {
-            const currentUser = localStorage.getItem('current_username');
-            if (currentUser === payload.old?.username || currentUser === payload.new?.username) {
-              toast.error("Your account has been " + (payload.eventType === 'DELETE' ? 'deleted' : 'deactivated') + " by admin. Please contact support.");
-              setTimeout(() => {
-                localStorage.removeItem('current_username');
-                navigate("/auth");
-              }, 2000);
-            }
-          }
-        }
-      )
-      .subscribe();
-
     return () => {
       supabase.removeChannel(channel);
-      supabase.removeChannel(credentialsChannel);
     };
   }, [navigate]);
 
@@ -82,12 +57,13 @@ const Auth = () => {
     setLoading(true);
 
     try {
-      // Verify username and secret code
+      // Verify username and secret code for specific game
       const { data: credential, error: credError } = await supabase
-        .from("user_credentials")
+        .from("game_credentials")
         .select("*")
         .eq("username", username)
         .eq("secret_code", secretCode)
+        .eq("game_type", gameType)
         .maybeSingle();
 
       if (credError) {
@@ -96,7 +72,7 @@ const Auth = () => {
       }
 
       if (!credential) {
-        throw new Error("Invalid username or secret code");
+        throw new Error("Invalid username or secret code for this game");
       }
 
       // Check if account is active
@@ -109,15 +85,41 @@ const Auth = () => {
         throw new Error("Account has expired. Contact admin.");
       }
 
-      localStorage.setItem('current_username', username);
-      localStorage.setItem('user_credential_id', credential.id);
+      // Store credential ID based on game type
+      const storageKey = `${gameType}_credential_id`;
+      const usernameKey = `${gameType}_username`;
+      localStorage.setItem(storageKey, credential.id);
+      localStorage.setItem(usernameKey, username);
       
       toast.success("Login successful!");
-      navigate("/mines");
+      
+      // Navigate to the appropriate game page
+      const gameRoutes = {
+        mines: "/mines",
+        aviator: "/aviator",
+        color_prediction: "/color-prediction"
+      };
+      navigate(gameRoutes[gameType]);
     } catch (error: any) {
       toast.error(error.message || "Login failed");
     } finally {
       setLoading(false);
+    }
+  };
+
+  const getGameEmoji = () => {
+    switch(gameType) {
+      case "mines": return "💣";
+      case "aviator": return "✈️";
+      case "color_prediction": return "🎨";
+    }
+  };
+
+  const getGameName = () => {
+    switch(gameType) {
+      case "mines": return "Mines";
+      case "aviator": return "Aviator";
+      case "color_prediction": return "Color Prediction";
     }
   };
 
@@ -126,7 +128,7 @@ const Auth = () => {
       <Card className="w-full max-w-md border-border bg-card/50 backdrop-blur-sm shadow-[0_0_30px_rgba(34,211,238,0.15)]">
         <CardHeader className="space-y-1">
           <CardTitle className="text-2xl font-bold text-center bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
-            Mines Verification
+            {getGameEmoji()} {getGameName()} Verification
           </CardTitle>
           <CardDescription className="text-center text-muted-foreground">
             User Login
@@ -134,6 +136,19 @@ const Auth = () => {
         </CardHeader>
         <CardContent>
           <form onSubmit={handleUserLogin} className="space-y-4">
+            <div className="space-y-2">
+              <Label htmlFor="game-select" className="text-foreground">Select Game</Label>
+              <Select value={gameType} onValueChange={(value: any) => setGameType(value)}>
+                <SelectTrigger className="bg-input border-border text-foreground">
+                  <SelectValue placeholder="Choose a game" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="mines">💣 Mines</SelectItem>
+                  <SelectItem value="aviator">✈️ Aviator</SelectItem>
+                  <SelectItem value="color_prediction">🎨 Color Prediction</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
             <div className="space-y-2">
               <Label htmlFor="username" className="text-foreground">Username</Label>
               <Input

@@ -23,12 +23,12 @@ const Mines = () => {
     checkAuthAndRole();
 
     // Subscribe to user credential changes for real-time deactivation
-    const credentialsChannel = supabase.channel('user-credentials-changes').on('postgres_changes', {
+    const credentialsChannel = supabase.channel('game-credentials-changes').on('postgres_changes', {
       event: '*',
       schema: 'public',
-      table: 'user_credentials'
+      table: 'game_credentials'
     }, payload => {
-      const credentialId = localStorage.getItem('user_credential_id');
+      const credentialId = localStorage.getItem('mines_credential_id');
       if (payload.eventType === 'DELETE' && payload.old?.id === credentialId) {
         toast.error("Your account has been deleted by admin.");
         setTimeout(() => {
@@ -46,16 +46,20 @@ const Mines = () => {
     };
   }, []);
   const checkAuthAndRole = async () => {
-    const credentialId = localStorage.getItem('user_credential_id');
+    const credentialId = localStorage.getItem('mines_credential_id');
     if (!credentialId) {
       navigate("/auth");
       return;
     }
 
     // Verify credential is still valid
-    const {
-      data: credential
-    } = await supabase.from("user_credentials").select("*").eq("id", credentialId).single();
+    const { data: credential } = await supabase
+      .from("game_credentials")
+      .select("*")
+      .eq("id", credentialId)
+      .eq("game_type", "mines")
+      .single();
+      
     if (!credential || !credential.is_active) {
       toast.error("Session invalid. Please login again.");
       navigate("/auth");
@@ -76,8 +80,8 @@ const Mines = () => {
     }
   };
   const handleLogout = async () => {
-    localStorage.removeItem('current_username');
-    localStorage.removeItem('user_credential_id');
+    localStorage.removeItem('mines_username');
+    localStorage.removeItem('mines_credential_id');
     await supabase.auth.signOut();
     toast.success("Logged out successfully");
     navigate("/auth");
